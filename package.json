@@ -1,0 +1,22 @@
+{
+  "name": "PLACEHOLDER",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "start": "bun run src/index.js",
+    "dev": "bun run --watch src/index.js",
+    "db:setup": "bun run src/db/setup.js",
+    "db:seed": "bun run src/db/seed.js",
+    "test": "bun test"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "hono": "^4.7.8"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
