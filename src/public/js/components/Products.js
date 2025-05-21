@@ -24,6 +24,15 @@ window.App.Components.Products = () => {
       });
   }, []);
 
+  // Create a ref for our QuickSearch component
+  const searchRef = React.useRef(null);
+  
+  // Function to handle search updates
+  const handleSearchResults = (event) => {
+    // This function could handle search results in the future
+    // For now we're letting the web component handle the display
+  };
+
   return (
     <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-6">
@@ -35,6 +44,13 @@ window.App.Components.Products = () => {
           Back to Home
         </button>
       </div>
+      
+      {/* Embed our QuickSearch web component */}
+      <div className="mb-6" ref={searchRef}>
+        <quick-search></quick-search>
+      </div>
+      
+      <h2 className="text-xl font-semibold mb-4">All Products</h2>
 
       {loading ? (
         <p>Loading products...</p>
