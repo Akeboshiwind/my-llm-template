@@ -96,110 +96,118 @@ function generateBasicExplanation(query, results) {
 }
 ```
 
-### 3. Simple Search UI Component
+### 3. Search UI React Component
 
-```html
-<!-- src/public/js/components/QuickSearch.js -->
+```jsx
+// Modified Products.js React component with search functionality
 
-class QuickSearch extends HTMLElement {
-  constructor() {
-    super();
-    this.innerHTML = `
-      <div class="quick-search">
+// Inside the Products React component:
+
+// Search state
+const [searchQuery, setSearchQuery] = React.useState("");
+const [searchResults, setSearchResults] = React.useState(null);
+const [searchExplanation, setSearchExplanation] = React.useState("");
+const [isSearching, setIsSearching] = React.useState(false);
+const [searchError, setSearchError] = React.useState(null);
+
+// Handle search submission
+const handleSearch = async () => {
+  if (!searchQuery.trim()) return;
+  
+  setIsSearching(true);
+  setSearchError(null);
+  
+  try {
+    const response = await fetch('/api/quick-search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: searchQuery })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Search failed');
+    }
+    
+    const data = await response.json();
+    setSearchResults(data.products);
+    setSearchExplanation(data.explanation);
+  } catch (error) {
+    console.error('Search error:', error);
+    setSearchError(error.message || 'Search failed');
+  } finally {
+    setIsSearching(false);
+  }
+};
+
+// Inside the render method:
+return (
+  <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    {/* Header section */}
+    <div className="flex justify-between items-center mb-6">
+      <h1 className="text-2xl font-bold">Products</h1>
+      <button
+        onClick={() => (window.location.hash = "")}
+        className="text-blue-500 hover:text-blue-600"
+      >
+        Back to Home
+      </button>
+    </div>
+    
+    {/* Search component */}
+    <div className="mb-6">
+      <div className="flex mb-2">
         <input 
           type="text" 
-          class="search-input" 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          className="flex-1 p-2 border border-gray-300 rounded-l-md"
           placeholder="Search products..."
+        />
+        <button 
+          onClick={handleSearch}
+          className="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600 transition"
         >
-        <button class="search-button">Search</button>
-        
-        <div class="results-explanation"></div>
-        <div class="results-container"></div>
+          Search
+        </button>
       </div>
-    `;
-    
-    this.setupListeners();
-  }
-  
-  setupListeners() {
-    const input = this.querySelector('.search-input');
-    const button = this.querySelector('.search-button');
-    
-    button.addEventListener('click', () => this.search(input.value));
-    input.addEventListener('keypress', e => {
-      if (e.key === 'Enter') this.search(input.value);
-    });
-  }
-  
-  async search(query) {
-    if (!query.trim()) return;
-    
-    const explanation = this.querySelector('.results-explanation');
-    const container = this.querySelector('.results-container');
-    
-    explanation.textContent = 'Searching...';
-    container.innerHTML = '';
-    
-    try {
-      const response = await fetch('/api/quick-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
-      });
       
-      const data = await response.json();
+      {/* Search status and results */}
+      {isSearching && (
+        <p className="text-gray-600 italic">Searching...</p>
+      )}
       
-      explanation.textContent = data.explanation;
+      {searchError && (
+        <p className="text-red-500">Error: {searchError}</p>
+      )}
       
-      if (data.products.length === 0) {
-        container.innerHTML = '<p>No products found.</p>';
-        return;
-      }
-      
-      container.innerHTML = data.products.map(product => `
-        <div class="product-card">
-          <h3>${product.name}</h3>
-          <p>${product.description}</p>
-          <strong>$${product.price.toFixed(2)}</strong>
+      {searchResults && !isSearching && (
+        <div className="mt-4">
+          <p className="text-gray-600 italic mb-2">{searchExplanation}</p>
+          {searchResults.length === 0 ? (
+            <p>No products found.</p>
+          ) : (
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+              {/* Product results rendering */}
+            </div>
+          )}
         </div>
-      `).join('');
-      
-    } catch (error) {
-      explanation.textContent = `Error: ${error.message}`;
-    }
-  }
-}
-
-customElements.define('quick-search', QuickSearch);
+      )}
+    </div>
+    
+    {/* Standard product listing section */}
+  </div>
+);
 ```
 
-### 4. Integration with Products Page
+### 4. Integration with Existing React Components
 
-```typescript
-// src/public/js/components/Products.js
+Since the Products page was already using React, we integrated the search functionality directly into the existing React component rather than creating a separate web component. This approach:
 
-// Add to the existing Products component
-class Products extends HTMLElement {
-  // ... existing code
-
-  connectedCallback() {
-    this.innerHTML = `
-      <div class="products-page">
-        <h1>Our Products</h1>
-        
-        <!-- Add the quick search component here -->
-        <quick-search></quick-search>
-        
-        <!-- Existing product listing -->
-        <div class="products-list">
-          ${this.renderProducts()}
-        </div>
-      </div>
-    `;
-  }
-  
-  // ... rest of existing component
-}
+1. Maintains consistency with the existing codebase
+2. Leverages React's state management capabilities
+3. Ensures proper styling integration with the rest of the UI
+4. Provides a better developer experience for future maintenance
 ```
 
 ## Implementation Steps (5-day sprint)
