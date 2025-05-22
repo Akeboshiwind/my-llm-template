@@ -5,10 +5,12 @@
   "private": true,
   "main": "src/index.js",
   "scripts": {
-    "start": "bun run src/index.js",
-    "dev": "bun run --watch src/index.js",
-    "db:setup": "bun run src/db/setup.js",
-    "db:seed": "bun run src/db/seed.js",
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "db:setup": "bun run src/db/setup.ts",
+    "db:seed": "bun run src/db/seed.ts",
     "test": "bun test"
   },
   "license": "MIT",
@@ -17,6 +19,8 @@
     "hono": "^4.7.8"
   },
   "devDependencies": {
-    "jest": "^29.7.0"
+    "@types/node": "^22.15.21",
+    "bun-types": "^1.2.13",
+    "typescript": "^5.8.3"
   }
 }
